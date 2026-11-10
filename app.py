@@ -2,12 +2,12 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="IMVU Tracker",
-    page_icon="🔍",
+    page_title="IMVU Tracker Pro",
+    page_icon="⚡",
     layout="centered"
 )
 
-# Estilo visual personalizado (Botón rojo y diseño limpio)
+# Estilo visual moderno y limpio (Inspirado en dashboards profesionales)
 st.markdown("""
     <style>
     .stButton>button {
@@ -17,50 +17,111 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5rem 1rem;
         border: none;
+        width: 100%;
     }
     .stButton>button:hover {
         background-color: #FF2222;
         color: white;
     }
+    .metric-card {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # Encabezado principal
-st.markdown("### Panel de control y seguimiento de perfiles.")
-st.title("Buscar Usuario")
+st.markdown("### ⚡ IMVU Tracker & Toolkit")
+st.title("Panel de Control")
 
-# Campo de entrada para el usuario de IMVU
-query_user = st.text_input("Introduce el nombre de avatar o usuario de IMVU:", placeholder="Ej. easyvd1")
+# Pestañas principales de navegación estilo plataforma avanzada
+tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
+    "👤 Perfil & Outfits", 
+    "🏠 Salas", 
+    "🛍️ Catálogo", 
+    "⚖️ Comparador"
+])
 
-# Botón de ejecución
-if st.button("Ejecutar Búsqueda"):
-    if query_user.strip() != "":
-        st.success(f"¡Búsqueda completada para: {query_user}!")
-        st.info(f"💡 Estado actual: El usuario está disponible para análisis de perfil.")
+# -------------------------------------------------------------
+# PESTAÑA 1: PERFIL & OUTFITS
+# -------------------------------------------------------------
+with tab_perfil:
+    st.subheader("Buscador de Avatares")
+    query_user = st.text_input("Introduce el nombre de usuario de IMVU:", placeholder="Ej. easyvd1", key="input_perfil")
+    
+    if st.button("Buscar Perfil", key="btn_perfil"):
+        if query_user.strip() != "":
+            st.success(f"¡Datos cargados para: {query_user}!")
+            
+            sub_tab1, sub_tab2 = st.tabs(["Información General", "Enlaces Directos"])
+            
+            with sub_tab1:
+                st.write(f"- **Avatar:** {query_user}")
+                st.write(f"- **Estado de Conexión:** Monitoreo Activo 🟢")
+                st.write(f"- **Plataforma:** Web Mobile App")
+                
+            with sub_tab2:
+                st.markdown(f"🔗 [Ver perfil oficial en IMVU](https://secure.imvu.com/next/av/{query_user}/)")
+                st.markdown(f"👗 [Buscar prendas / outfits relacionados](https://www.imvu.com/shop/web_search.php?q={query_user})")
+        else:
+            st.warning("Por favor, introduce un nombre de usuario válido.")
+
+# -------------------------------------------------------------
+# PESTAÑA 2: SALAS
+# -------------------------------------------------------------
+with tab_salas:
+    st.subheader("Buscador y Historial de Salas")
+    room_query = st.text_input("Nombre de sala o ID de espacio:", placeholder="Ej. Lounge, Club...", key="input_sala")
+    
+    if st.button("Buscar Sala", key="btn_sala"):
+        if room_query.strip() != "":
+            st.success(f"Resultados de salas para: {room_query}")
+            st.info("💡 Herramienta de visualización de espacios y flujo de actividad lista.")
+            st.markdown(f"🌐 [Explorar salas públicas en IMVU](https://www.imvu.com/rooms/)")
+        else:
+            st.warning("Introduce un término de sala para buscar.")
+
+# -------------------------------------------------------------
+# PESTAÑA 3: CATÁLOGO
+# -------------------------------------------------------------
+with tab_catalogo:
+    st.subheader("Explorador de Productos y Creadores")
+    prod_query = st.text_input("Buscar producto o creador:", placeholder="Ej. Hair, Jeans, CreatorName", key="input_prod")
+    
+    if st.button("Buscar en Tienda", key="btn_prod"):
+        if prod_query.strip() != "":
+            st.success(f"Búsqueda en catálogo para: {prod_query}")
+            st.markdown(f"🛍️ [Ver resultados en la tienda de IMVU](https://www.imvu.com/shop/web_search.php?q={prod_query})")
+        else:
+            st.warning("Introduce el nombre de un artículo o creador.")
+
+# -------------------------------------------------------------
+# PESTAÑA 4: COMPARADOR DE PERFILES
+# -------------------------------------------------------------
+with tab_comparar:
+    st.subheader("Comparador Rápido de Avatares")
+    col_a, col_b = st.columns(2)
+    
+    with col_a:
+        user_1 = st.text_input("Avatar A:", placeholder="Primer usuario", key="cmp_1")
+    with col_b:
+        user_2 = st.text_input("Avatar B:", placeholder="Segundo usuario", key="cmp_2")
         
-        # Pestañas de información estructurada
-        tab_resumen, tab_estadisticas, tab_historial = st.tabs(["Resumen", "Estadísticas", "Historial"])
-        
-        with tab_resumen:
-            st.markdown(f"**Información general recopilada de `{query_user}`:**")
-            st.write(f"- **Usuario:** {query_user}")
-            st.write(f"- **Estado:** Conectado / Activo")
-            st.write(f"- **Plataforma:** Web Mobile")
+    if st.button("Comparar Perfiles", key="btn_cmp"):
+        if user_1.strip() and user_2.strip():
+            st.success("¡Comparación generada con éxito!")
             
-            # Enlaces directos útiles para perfiles de IMVU (con búsqueda corregida en el catálogo)
-            st.markdown("### Enlaces Rápidos de Acceso")
-            st.markdown(f"🔗 [Ver perfil oficial en IMVU](https://secure.imvu.com/next/av/{query_user}/)")
-            st.markdown(f"🛍️ [Buscar en el catálogo](https://www.imvu.com/shop/web_search.php?q={query_user})")
-            
-        with tab_estadisticas:
-            st.markdown("### Métricas del Perfil")
-            col1, col2 = st.columns(2)
-            col2.metric("Nivel de Actividad", "Alto", "🟢 Online")
-            col1.metric("Consultas Realizadas", "1", "Actualizado")
-            
-        with tab_historial:
-            st.markdown("### Registro de Actividad Reciente")
-            st.write(f"• Consulta inicial exitosa registrada para el avatar `{query_user}` en la versión móvil.")
-            
-    else:
-        st.warning("Por favor, introduce un nombre de usuario válido antes de buscar.")
+            col_res1, col_res2 = st.columns(2)
+            with col_res1:
+                st.markdown(f"**📌 {user_1}**")
+                st.markdown(f"🔗 [Perfil A](https://secure.imvu.com/next/av/{user_1}/)")
+                st.markdown(f"🛍️ [Catálogo A](https://www.imvu.com/shop/web_search.php?q={user_1})")
+                
+            with col_res2:
+                st.markdown(f"**📌 {user_2}**")
+                st.markdown(f"🔗 [Perfil B](https://secure.imvu.com/next/av/{user_2}/)")
+                st.markdown(f"🛍️ [Catálogo B](https://www.imvu.com/shop/web_search.php?q={user_2})")
+        else:
+            st.warning("Por favor, introduce ambos nombres de usuario para comparar.")
