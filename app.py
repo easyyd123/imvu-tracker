@@ -65,10 +65,18 @@ with tab_perfil:
                     
             st.success(f"¡Datos cargados para: {avatar_limpio}!")
             
-            # Tarjeta de información limpia y profesional
-            st.markdown(f"### 👤 @{avatar_limpio}")
-            st.markdown(f"**Estado:** Monitoreo Activo 🟢")
-            st.markdown(f"**Plataforma:** Web Mobile App")
+            # Mostrar la foto real del avatar usando la ruta pública oficial de IMVU Next
+            col_img, col_info = st.columns([1, 2])
+            
+            with col_img:
+                # URL oficial optimizada para miniatura de perfil de avatar en IMVU
+                avatar_img_url = f"https://avatars.imvu.com/avatar_{avatar_limpio}"
+                st.image(avatar_img_url, width=130, caption=f"@{avatar_limpio}")
+                
+            with col_info:
+                st.markdown(f"**Avatar:** `{avatar_limpio}`")
+                st.markdown(f"**Estado:** Monitoreo Activo 🟢")
+                st.markdown(f"**Plataforma:** Web Mobile App")
             
             st.markdown("---")
             
