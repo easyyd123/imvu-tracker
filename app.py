@@ -43,7 +43,7 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 ])
 
 # -------------------------------------------------------------
-# PESTAÑA 1: PERFIL & OUTFITS (Con Historial de Sesión)
+# PESTAÑA 1: PERFIL & OUTFITS
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
@@ -52,11 +52,9 @@ with tab_perfil:
     
     if st.button("Buscar Perfil", key="btn_perfil"):
         if query_user.strip() != "":
-            # Agregar al historial evitando duplicados consecutivos
             avatar_limpio = query_user.strip()
             if avatar_limpio not in st.session_state.historial_busquedas:
                 st.session_state.historial_busquedas.insert(0, avatar_limpio)
-                # Mantener solo los últimos 5 avatares en la lista
                 if len(st.session_state.historial_busquedas) > 5:
                     st.session_state.historial_busquedas.pop()
                     
@@ -75,7 +73,6 @@ with tab_perfil:
         else:
             st.warning("Por favor, introduce un nombre de usuario válido.")
             
-    # Mostrar historial reciente de búsquedas debajo del buscador
     if st.session_state.historial_busquedas:
         st.markdown("---")
         st.markdown("🕒 **Búsquedas recientes en esta sesión:**")
@@ -83,19 +80,23 @@ with tab_perfil:
             st.markdown(f"• `{av}` ➔ [Ver Perfil](https://secure.imvu.com/next/av/{av}/)")
 
 # -------------------------------------------------------------
-# PESTAÑA 2: SALAS
+# PESTAÑA 2: SALAS (Con Teleport de Salas)
 # -------------------------------------------------------------
 with tab_salas:
-    st.subheader("Buscador y Historial de Salas")
-    room_query = st.text_input("Nombre de sala o ID de espacio:", placeholder="Ej. Lounge, Club...", key="input_sala")
+    st.subheader("🏠 Teleport y Buscador de Salas")
     
-    if st.button("Buscar Sala", key="btn_sala"):
-        if room_query.strip() != "":
-            st.success(f"Resultados de salas para: {room_query}")
-            st.info("💡 Herramienta de visualización de espacios y flujo de actividad lista.")
-            st.link_button("🌐 Explorar salas públicas en IMVU", "https://www.imvu.com/rooms/")
+    room_id = st.text_input("Introduce el ID o nombre de la sala:", placeholder="Ej. 12345678 o nombre de sala", key="input_sala_id")
+    
+    if st.button("Generar Enlace de Sala", key="btn_sala"):
+        if room_id.strip() != "":
+            sala_limpia = room_id.strip()
+            st.success(f"¡Acceso directo generado para la sala: {sala_limpia}!")
+            
+            # Enlaces útiles para salas de IMVU
+            st.link_button(f"🌐 Entrar a la sala ({sala_limpia})", f"https://www.imvu.com/rooms/{sala_limpia}")
+            st.link_button("📂 Explorar directorio general de salas", "https://www.imvu.com/rooms/")
         else:
-            st.warning("Introduce un término de sala para buscar.")
+            st.warning("Por favor, introduce un ID o término de sala válido.")
 
 # -------------------------------------------------------------
 # PESTAÑA 3: CATÁLOGO
