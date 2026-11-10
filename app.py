@@ -26,6 +26,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Inicializar el historial en la sesión si no existe
+if 'historial_busquedas' not in st.session_state:
+    st.session_state.historial_busquedas = []
+
 # Encabezado principal
 st.markdown("### ⚡ IMVU Tracker & Toolkit")
 st.title("Panel de Control")
@@ -39,28 +43,44 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 ])
 
 # -------------------------------------------------------------
-# PESTAÑA 1: PERFIL & OUTFITS
+# PESTAÑA 1: PERFIL & OUTFITS (Con Historial de Sesión)
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
+    
     query_user = st.text_input("Introduce el nombre de usuario de IMVU:", placeholder="Ej. easyvd1", key="input_perfil")
     
     if st.button("Buscar Perfil", key="btn_perfil"):
         if query_user.strip() != "":
-            st.success(f"¡Datos cargados para: {query_user}!")
+            # Agregar al historial evitando duplicados consecutivos
+            avatar_limpio = query_user.strip()
+            if avatar_limpio not in st.session_state.historial_busquedas:
+                st.session_state.historial_busquedas.insert(0, avatar_limpio)
+                # Mantener solo los últimos 5 avatares en la lista
+                if len(st.session_state.historial_busquedas) > 5:
+                    st.session_state.historial_busquedas.pop()
+                    
+            st.success(f"¡Datos cargados para: {avatar_limpio}!")
             
             sub_tab1, sub_tab2 = st.tabs(["Información General", "Enlaces Directos"])
             
             with sub_tab1:
-                st.write(f"- **Avatar:** {query_user}")
+                st.write(f"- **Avatar:** {avatar_limpio}")
                 st.write(f"- **Estado de Conexión:** Monitoreo Activo 🟢")
                 st.write(f"- **Plataforma:** Web Mobile App")
                 
             with sub_tab2:
-                st.link_button(f"🔗 Ver perfil oficial de {query_user}", f"https://secure.imvu.com/next/av/{query_user}/")
-                st.link_button(f"👗 Buscar prendas / outfits relacionados", f"https://www.imvu.com/shop/web_search.php?q={query_user}")
+                st.link_button(f"🔗 Ver perfil oficial de {avatar_limpio}", f"https://secure.imvu.com/next/av/{avatar_limpio}/")
+                st.link_button(f"👗 Buscar prendas / outfits relacionados", f"https://www.imvu.com/shop/web_search.php?q={avatar_limpio}")
         else:
             st.warning("Por favor, introduce un nombre de usuario válido.")
+            
+    # Mostrar historial reciente de búsquedas debajo del buscador
+    if st.session_state.historial_busquedas:
+        st.markdown("---")
+        st.markdown("🕒 **Búsquedas recientes en esta sesión:**")
+        for av in st.session_state.historial_busquedas:
+            st.markdown(f"• `{av}` ➔ [Ver Perfil](https://secure.imvu.com/next/av/{av}/)")
 
 # -------------------------------------------------------------
 # PESTAÑA 2: SALAS
@@ -73,7 +93,7 @@ with tab_salas:
         if room_query.strip() != "":
             st.success(f"Resultados de salas para: {room_query}")
             st.info("💡 Herramienta de visualización de espacios y flujo de actividad lista.")
-            st.link_button("🌐 Explorar salas públicas en IMVU", "https://www.com/rooms/")
+            st.link_button("🌐 Explorar salas públicas en IMVU", "https://www.imvu.com/rooms/")
         else:
             st.warning("Introduce un término de sala para buscar.")
 
