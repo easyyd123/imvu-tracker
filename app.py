@@ -23,10 +23,6 @@ st.markdown("""
         background-color: #FF2222;
         color: white;
     }
-    /* Estilo para contenedores tipo tarjeta oscura */
-    div.stMarkdown {
-        color: #E0E0E0;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -50,7 +46,7 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 ])
 
 # -------------------------------------------------------------
-# PESTAÑA 1: PERFIL & OUTFITS (Con tarjetas visuales estilo BotPower)
+# PESTAÑA 1: PERFIL & OUTFITS (Con fotos de avatar estilo BotPower)
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
@@ -61,24 +57,27 @@ with tab_perfil:
         if query_user.strip() != "":
             avatar_limpio = query_user.strip().lower()
             
-            # Guardar en historial con formato de objeto para almacenar más detalles
+            # URL oficial directa de renderizado de avatar en IMVU
+            avatar_url = f"https://userimages.imvu.com/gallery/avatar_{avatar_limpio}.jpg"
+            
+            # Guardar en el historial evitando duplicados
             if not any(item['nombre'] == avatar_limpio for item in st.session_state.historial_busquedas):
                 st.session_state.historial_busquedas.insert(0, {
                     'nombre': avatar_limpio,
-                    'img': f"https://avatars.imvu.com/avatar_{avatar_limpio}"
+                    'img': avatar_url
                 })
                 if len(st.session_state.historial_busquedas) > 4:
                     st.session_state.historial_busquedas.pop()
                     
             st.success(f"¡Datos cargados para: {avatar_limpio}!")
             
-            # Tarjeta principal del usuario buscado con imagen oficial
-            col_card1, col_card2 = st.columns(2)
-            with col_card1:
-                st.image(f"https://avatars.imvu.com/avatar_{avatar_limpio}", caption=f"@{avatar_limpio}", use_column_width=True)
-            with col_card2:
+            # Tarjeta de perfil principal con imagen oficial
+            col_img, col_info = st.columns([1, 1])
+            with col_img:
+                st.image(avatar_url, caption=f"@{avatar_limpio}", use_column_width=True)
+            with col_info:
                 st.markdown(f"### @{avatar_limpio}")
-                st.markdown("🟢 **Estado:** Activo / En línea")
+                st.markdown("🟢 **Estado:** Activo")
                 st.link_button(f"🔗 Ver Perfil", f"https://secure.imvu.com/next/av/{avatar_limpio}/")
                 st.link_button(f"🛍️ Catálogo", f"https://www.imvu.com/shop/web_search.php?q={avatar_limpio}")
                 
@@ -89,10 +88,7 @@ with tab_perfil:
     # Sección de Búsquedas Recientes estilo Cuadrícula (BotPower Style)
     st.markdown("### RECENT LOOKUPS")
     
-    # Mostrar cuadrícula de 2x2 para las búsquedas recientes
     historial = st.session_state.historial_busquedas
-    
-    # Rellenar hasta 4 espacios para mantener la estructura visual de cuadrícula
     slots = historial + [{'nombre': 'No search yet', 'img': None}] * (4 - len(historial))
     
     col_r1, col_r2 = st.columns(2)
@@ -102,8 +98,8 @@ with tab_perfil:
         with st.container():
             if slots[0]['img']:
                 st.image(slots[0]['img'], use_column_width=True)
-                st.markdown(f"**{slots[0]['nombre']}**")
-                st.markdown("[Ver Perfil]({})".format(f"https://secure.imvu.com/next/av/{slots[0]['nombre']}/"))
+                st.markdown(f"**@{slots[0]['nombre']}**")
+                st.link_button(f"Ver Perfil", f"https://secure.imvu.com/next/av/{slots[0]['nombre']}/", key="btn_h0")
             else:
                 st.info("No search yet")
                 
@@ -111,8 +107,8 @@ with tab_perfil:
         with st.container():
             if slots[2]['img']:
                 st.image(slots[2]['img'], use_column_width=True)
-                st.markdown(f"**{slots[2]['nombre']}**")
-                st.markdown("[Ver Perfil]({})".format(f"https://secure.imvu.com/next/av/{slots[2]['nombre']}/"))
+                st.markdown(f"**@{slots[2]['nombre']}**")
+                st.link_button(f"Ver Perfil", f"https://secure.imvu.com/next/av/{slots[2]['nombre']}/", key="btn_h2")
             else:
                 st.info("No search yet")
                 
@@ -121,8 +117,8 @@ with tab_perfil:
         with st.container():
             if slots[1]['img']:
                 st.image(slots[1]['img'], use_column_width=True)
-                st.markdown(f"**{slots[1]['nombre']}**")
-                st.markdown("[Ver Perfil]({})".format(f"https://secure.imvu.com/next/av/{slots[1]['nombre']}/"))
+                st.markdown(f"**@{slots[1]['nombre']}**")
+                st.link_button(f"Ver Perfil", f"https://secure.imvu.com/next/av/{slots[1]['nombre']}/", key="btn_h1")
             else:
                 st.info("No search yet")
                 
@@ -130,8 +126,8 @@ with tab_perfil:
         with st.container():
             if slots[3]['img']:
                 st.image(slots[3]['img'], use_column_width=True)
-                st.markdown(f"**{slots[3]['nombre']}**")
-                st.markdown("[Ver Perfil]({})".format(f"https://secure.imvu.com/next/av/{slots[3]['nombre']}/"))
+                st.markdown(f"**@{slots[3]['nombre']}**")
+                st.link_button(f"Ver Perfil", f"https://secure.imvu.com/next/av/{slots[3]['nombre']}/", key="btn_h3")
             else:
                 st.info("No search yet")
 
@@ -195,13 +191,13 @@ with tab_comparar:
             
             col_res1, col_res2 = st.columns(2)
             with col_res1:
-                st.image(f"https://avatars.imvu.com/avatar_{user_1.strip().lower()}", use_column_width=True)
-                st.markdown(f"**📌 {user_1}**")
+                st.image(f"https://userimages.imvu.com/gallery/avatar_{user_1.strip().lower()}.jpg", use_column_width=True)
+                st.markdown(f"**📌 @{user_1}**")
                 st.link_button(f"🔗 Perfil A", f"https://secure.imvu.com/next/av/{user_1}/")
                 
             with col_res2:
-                st.image(f"https://avatars.imvu.com/avatar_{user_2.strip().lower()}", use_column_width=True)
-                st.markdown(f"**📌 {user_2}**")
+                st.image(f"https://userimages.imvu.com/gallery/avatar_{user_2.strip().lower()}.jpg", use_column_width=True)
+                st.markdown(f"**📌 @{user_2}**")
                 st.link_button(f"🔗 Perfil B", f"https://secure.imvu.com/next/av/{user_2}/")
         else:
             st.warning("Por favor, introduce ambos nombres de usuario para comparar.")
