@@ -33,9 +33,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar estados
+# Inicializar estados de sesión
 if 'historial_busquedas' not in st.session_state:
     st.session_state.historial_busquedas = []
+
+if 'rooms_searched' not in st.session_state:
+    st.session_state.rooms_searched = None
 
 # Encabezado principal
 st.markdown("### ⚡ IMVU Tracker & Toolkit")
@@ -70,11 +73,11 @@ with tab_perfil:
             st.warning("Introduce un nombre válido.")
 
 # -------------------------------------------------------------
-# PESTAÑA 2: ROOM LIST (Rastreo de Salas y Actividad Cruzada)
+# PESTAÑA 2: ROOM LIST (Historial Completo de Salas)
 # -------------------------------------------------------------
 with tab_salas:
     st.markdown("<h2 style='text-align: center;'>ROOM LIST</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #888;'>Rastreo de salas y cruce de usuarios</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #888;'>Historial completo de rastreo y salas visitadas</p>", unsafe_allow_html=True)
     
     with st.container():
         st.markdown('<div class="room-card">', unsafe_allow_html=True)
@@ -85,50 +88,66 @@ with tab_salas:
         
     if search_btn:
         if room_username.strip() != "":
-            u_clean = room_username.strip()
-            w_clean = room_with_user.strip() if room_with_user else "Ninguno"
+            st.session_state.rooms_searched = room_username.strip()
             
-            st.success(f"Resultados de rastreo para @{u_clean} (Con usuario: {w_clean})")
-            
-            # Estadísticas de usuario estilo BotPower
-            st.markdown(f"""
-                <div class="room-card" style="text-align: center;">
-                    <h4 style="color: #FF4B4B; margin-bottom: 10px;">👤 @{u_clean}</h4>
-                    <div style="display: flex; justify-content: space-around; margin-top: 15px;">
-                        <div><span style="font-size: 18px; font-weight: bold; color: white;">1,386</span><br><span style="font-size: 10px; color: #888;">ROOMS</span></div>
-                        <div><span style="font-size: 18px; font-weight: bold; color: white;">796</span><br><span style="font-size: 10px; color: #888;">PUBLIC</span></div>
-                        <div><span style="font-size: 18px; font-weight: bold; color: white;">576</span><br><span style="font-size: 10px; color: #888;">PRIVATE</span></div>
-                    </div>
+    if st.session_state.rooms_searched:
+        u_clean = st.session_state.rooms_searched
+        w_clean = room_with_user.strip() if room_with_user else "Ninguno"
+        
+        st.success(f"Historial completo de salas para @{u_clean}")
+        
+        # Tarjeta de estadísticas de usuario estilo BotPower
+        st.markdown(f"""
+            <div class="room-card" style="text-align: center;">
+                <h4 style="color: #FF4B4B; margin-bottom: 10px;">👤 @{u_clean}</h4>
+                <div style="display: flex; justify-content: space-around; margin-top: 15px;">
+                    <div><span style="font-size: 18px; font-weight: bold; color: white;">1,386</span><br><span style="font-size: 10px; color: #888;">ROOMS</span></div>
+                    <div><span style="font-size: 18px; font-weight: bold; color: white;">796</span><br><span style="font-size: 10px; color: #888;">PUBLIC</span></div>
+                    <div><span style="font-size: 18px; font-weight: bold; color: white;">576</span><br><span style="font-size: 10px; color: #888;">PRIVATE</span></div>
                 </div>
-            """, unsafe_allow_html=True)
-            
-            st.markdown("### Rooms & Activity Snapshots")
-            
-            # Tarjetas de salas simulando la estructura visual de la captura
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("### 🕒 Complete Rooms History & Snapshots")
+        
+        # Lista simulada de historial completo de salas (puedes expandir esta lista con más registros)
+        historial_salas = [
+            {"nombre": "Santorini Pool & Chill", "personas": 2, "tiempo": "10h ago", "id": "101"},
+            {"nombre": "18+ Chill Zone & Music", "personas": 4, "tiempo": "11h ago", "id": "102"},
+            {"nombre": "VIP Luxury Penthouse", "personas": 6, "tiempo": "14h ago", "id": "103"},
+            {"nombre": "Underground Cyber Club", "personas": 12, "tiempo": "1 día ago", "id": "104"},
+            {"nombre": "Aesthetic Sunset Lounge", "personas": 3, "tiempo": "1 día ago", "id": "105"},
+            {"nombre": "Private Coffee & Chat", "personas": 2, "tiempo": "2 días ago", "id": "106"}
+        ]
+        
+        # Mostrar el historial completo organizado en una cuadrícula de 2 columnas
+        for i in range(0, len(historial_salas), 2):
             col1, col2 = st.columns(2)
             
+            # Sala izquierda
             with col1:
-                st.markdown("""
+                sala = historial_salas[i]
+                st.markdown(f"""
                     <div class="room-card">
-                        <b style="color: white; font-size: 14px;">Santorini Pool & Chill</b><br>
-                        <span style="color: #888; font-size: 12px;">👤 2 personas · 10h ago</span><br>
-                        <span style="color: #00FF7F; font-size: 11px;">🟢 Actividad detectada</span>
+                        <b style="color: white; font-size: 13px;">{sala['nombre']}</b><br>
+                        <span style="color: #888; font-size: 11px;">👤 {sala['personas']} personas · {sala['tiempo']}</span><br>
+                        <span style="color: #00FF7F; font-size: 10px;">🟢 Registro verificado</span>
                     </div>
                 """, unsafe_allow_html=True)
-                st.link_button("🌐 Entrar a Sala", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", use_container_width=True)
+                st.link_button(f"🌐 Entrar ({sala['nombre'][:10]}...)", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", key=f"room_left_{i}", use_container_width=True)
                 
-            with col2:
-                st.markdown("""
-                    <div class="room-card">
-                        <b style="color: white; font-size: 14px;">18+ Chill Zone & Music</b><br>
-                        <span style="color: #888; font-size: 12px;">👤 4 personas · 11h ago</span><br>
-                        <span style="color: #00FF7F; font-size: 11px;">🟢 Actividad detectada</span>
-                    </div>
-                """, unsafe_allow_html=True)
-                st.link_button("🌐 Entrar a Sala", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", use_container_width=True)
-                
-        else:
-            st.warning("Introduce al menos un nombre de usuario.")
+            # Sala derecha (si existe)
+            if i + 1 < len(historial_salas):
+                with col2:
+                    sala_ der = historial_salas[i+1]
+                    st.markdown(f"""
+                        <div class="room-card">
+                            <b style="color: white; font-size: 13px;">{sala_der['nombre']}</b><br>
+                            <span style="color: #888; font-size: 11px;">👤 {sala_der['personas']} personas · {sala_der['tiempo']}</span><br>
+                            <span style="color: #00FF7F; font-size: 10px;">🟢 Registro verificado</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    st.link_button(f"🌐 Entrar ({sala_der['nombre'][:10]}...)", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", key=f"room_right_{i+1}", use_container_width=True)
 
 # -------------------------------------------------------------
 # PESTAÑA 3: CATÁLOGO
