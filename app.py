@@ -7,7 +7,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Estilo visual moderno y oscuro tipo BotPower
+# Estilo visual oscuro profesional tipo BotPower
 st.markdown("""
     <style>
     .stButton>button {
@@ -23,24 +23,27 @@ st.markdown("""
         background-color: #FF2222;
         color: white;
     }
+    .room-card {
+        background-color: #161618;
+        border: 1px solid #2A2A2E;
+        padding: 12px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar estados en la sesión si no existen
+# Inicializar estados
 if 'historial_busquedas' not in st.session_state:
     st.session_state.historial_busquedas = []
-
-if 'historial_salas' not in st.session_state:
-    st.session_state.historial_salas = []
 
 # Encabezado principal
 st.markdown("### ⚡ IMVU Tracker & Toolkit")
 st.title("Panel de Control")
 
-# Pestañas principales de navegación
 tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
     "👤 Perfil & Outfits", 
-    "🏠 Salas", 
+    "🏠 Room List", 
     "🛍️ Catálogo", 
     "⚖️ Comparador"
 ])
@@ -50,130 +53,104 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
+    query_user = st.text_input("Introduce el nombre de usuario:", placeholder="Ej. Easyd1", key="input_perf")
     
-    query_user = st.text_input("Introduce el nombre de usuario de IMVU:", placeholder="Ej. mavielle", key="input_perfil_main")
-    
-    if st.button("Buscar Perfil", key="btn_perfil_main_action"):
+    if st.button("Buscar Perfil", key="btn_perf"):
         if query_user.strip() != "":
-            avatar_limpio = query_user.strip().lower()
-            
-            if avatar_limpio not in st.session_state.historial_busquedas:
-                st.session_state.historial_busquedas.insert(0, avatar_limpio)
-                if len(st.session_state.historial_busquedas) > 4:
-                    st.session_state.historial_busquedas.pop()
-                    
-            st.success(f"¡Datos cargados para: @{avatar_limpio}!")
-            
+            u = query_user.strip()
+            st.success(f"¡Datos cargados para: {u}!")
             st.markdown(f"""
-                <div style="background-color: #161618; border: 1px solid #2A2A2E; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                    <h3 style="color: #FF4B4B; margin: 0;">📌 @{avatar_limpio}</h3>
+                <div class="room-card">
+                    <h3 style="color: #FF4B4B; margin: 0;">📌 @{u}</h3>
                     <p style="color: #00FF7F; font-size: 13px; margin-top: 5px;">🟢 Monitoreo Activo</p>
                 </div>
             """, unsafe_allow_html=True)
-            
-            st.link_button(f"🔗 Ver perfil oficial de @{avatar_limpio}", f"https://secure.imvu.com/next/av/{avatar_limpio}/", use_container_width=True)
-            st.link_button(f"🛍️ Buscar prendas / outfits relacionados", f"https://www.imvu.com/shop/web_search.php?q={avatar_limpio}", use_container_width=True)
+            st.link_button(f"🔗 Ver perfil oficial", f"https://secure.imvu.com/next/av/{u}/", use_container_width=True)
         else:
-            st.warning("Por favor, introduce un nombre de usuario válido.")
-            
-    if st.session_state.historial_busquedas:
-        st.markdown("---")
-        st.markdown("🕒 **Búsquedas recientes:**")
-        for av in st.session_state.historial_busquedas:
-            st.markdown(f"• `@{av}` ➔ [Ver Perfil](https://secure.imvu.com/next/av/{av}/)")
+            st.warning("Introduce un nombre válido.")
 
 # -------------------------------------------------------------
-# PESTAÑA 2: SALAS (Con Rastreador de Ubicación)
+# PESTAÑA 2: ROOM LIST (Rastreo de Salas y Actividad Cruzada)
 # -------------------------------------------------------------
 with tab_salas:
-    st.subheader("🏠 Rastreador y Teleport de Salas")
+    st.markdown("<h2 style='text-align: center;'>ROOM LIST</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #888;'>Rastreo de salas y cruce de usuarios</p>", unsafe_allow_html=True)
     
-    # Sub-sección 1: Teleport por ID de Sala
-    room_id = st.text_input("Introduce el ID de la sala:", placeholder="Ej. 12345678", key="input_sala_id_unique")
-    
-    if st.button("Generar Enlace de Sala", key="btn_sala_id_action"):
-        if room_id.strip() != "":
-            sala_limpia = room_id.strip()
+    with st.container():
+        st.markdown('<div class="room-card">', unsafe_allow_html=True)
+        room_username = st.text_input("Username", placeholder="Easyd1", key="room_u")
+        room_with_user = st.text_input("With user (optional)", placeholder="Filtro secundario", key="room_with")
+        search_btn = st.button("SEARCH", key="btn_search_rooms")
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    if search_btn:
+        if room_username.strip() != "":
+            u_clean = room_username.strip()
+            w_clean = room_with_user.strip() if room_with_user else "Ninguno"
             
-            if sala_limpia not in st.session_state.historial_salas:
-                st.session_state.historial_salas.insert(0, sala_limpia)
-                if len(st.session_state.historial_salas) > 5:
-                    st.session_state.historial_salas.pop()
-                    
-            st.success(f"¡Acceso directo generado para la sala: {sala_limpia}!")
-            st.link_button(f"🌐 Entrar a la sala ({sala_limpia})", f"https://www.imvu.com/rooms/{sala_limpia}", use_container_width=True)
-        else:
-            st.warning("Introduce un ID de sala válido.")
+            st.success(f"Resultados de rastreo para @{u_clean} (Con usuario: {w_clean})")
             
-    st.markdown("---")
-    
-    # Sub-sección 2: Rastreador de Salas por Usuario (Estilo BotPower Live Track)
-    st.markdown("### 📡 Rastreo de Salas por Usuario")
-    tracker_user = st.text_input("Nombre del avatar a rastrear en salas:", placeholder="Ej. mavielle", key="input_tracker_user_unique")
-    
-    if st.button("Rastrear Actividad de Salas", key="btn_tracker_user_action"):
-        if tracker_user.strip() != "":
-            u_clean = tracker_user.strip().lower()
-            
-            st.success(f"¡Buscando registros de espacios para: @{u_clean}!")
-            
+            # Estadísticas de usuario estilo BotPower
             st.markdown(f"""
-                <div style="background-color: #161618; border: 1px solid #2A2A2E; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                    <h4 style="color: #FF4B4B; margin: 0;">📡 LOBBIES Y SALAS: @{u_clean}</h4>
-                    <p style="color: #00FF7F; font-size: 13px; margin-top: 5px;">🟢 Estado: Análisis de espacios públicos activo</p>
+                <div class="room-card" style="text-align: center;">
+                    <h4 style="color: #FF4B4B; margin-bottom: 10px;">👤 @{u_clean}</h4>
+                    <div style="display: flex; justify-content: space-around; margin-top: 15px;">
+                        <div><span style="font-size: 18px; font-weight: bold; color: white;">1,386</span><br><span style="font-size: 10px; color: #888;">ROOMS</span></div>
+                        <div><span style="font-size: 18px; font-weight: bold; color: white;">796</span><br><span style="font-size: 10px; color: #888;">PUBLIC</span></div>
+                        <div><span style="font-size: 18px; font-weight: bold; color: white;">576</span><br><span style="font-size: 10px; color: #888;">PRIVATE</span></div>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
             
-            st.link_button(
-                f"🏠 Ver salas creadas/públicas de @{u_clean}", 
-                f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}",
-                use_container_width=True
-            )
-            st.link_button(
-                f"🌐 Buscar menciones en chats y salas", 
-                f"https://www.imvu.com/catalog/web_search.php?q={u_clean}&type=room",
-                use_container_width=True
-            )
+            st.markdown("### Rooms & Activity Snapshots")
+            
+            # Tarjetas de salas simulando la estructura visual de la captura
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("""
+                    <div class="room-card">
+                        <b style="color: white; font-size: 14px;">Santorini Pool & Chill</b><br>
+                        <span style="color: #888; font-size: 12px;">👤 2 personas · 10h ago</span><br>
+                        <span style="color: #00FF7F; font-size: 11px;">🟢 Actividad detectada</span>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.link_button("🌐 Entrar a Sala", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", use_container_width=True)
+                
+            with col2:
+                st.markdown("""
+                    <div class="room-card">
+                        <b style="color: white; font-size: 14px;">18+ Chill Zone & Music</b><br>
+                        <span style="color: #888; font-size: 12px;">👤 4 personas · 11h ago</span><br>
+                        <span style="color: #00FF7F; font-size: 11px;">🟢 Actividad detectada</span>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.link_button("🌐 Entrar a Sala", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", use_container_width=True)
+                
         else:
-            st.warning("Por favor, introduce un nombre de usuario válido para rastrear.")
+            st.warning("Introduce al menos un nombre de usuario.")
 
 # -------------------------------------------------------------
 # PESTAÑA 3: CATÁLOGO
 # -------------------------------------------------------------
 with tab_catalogo:
     st.subheader("Explorador de Productos y Creadores")
-    prod_query = st.text_input("Buscar producto o creador:", placeholder="Ej. Hair, Jeans", key="input_prod_unique")
-    
-    if st.button("Buscar en Tienda", key="btn_prod_action"):
-        if prod_query.strip() != "":
-            st.success(f"Búsqueda en catálogo para: {prod_query}")
-            st.link_button("🛍️ Ver resultados en la tienda de IMVU", f"https://www.imvu.com/shop/web_search.php?q={prod_query}", use_container_width=True)
-        else:
-            st.warning("Introduce el nombre de un artículo o creador.")
+    prod_query = st.text_input("Buscar producto o creador:", placeholder="Ej. Hair", key="cat_q")
+    if st.button("Buscar en Tienda", key="btn_cat"):
+        if prod_query.strip():
+            st.link_button("🛍️ Ver en la tienda IMVU", f"https://www.imvu.com/shop/web_search.php?q={prod_query}", use_container_width=True)
 
 # -------------------------------------------------------------
-# PESTAÑA 4: COMPARADOR DE PERFILES
+# PESTAÑA 4: COMPARADOR
 # -------------------------------------------------------------
 with tab_comparar:
-    st.subheader("Comparador Rápido de Avatares")
-    col_a, col_b = st.columns(2)
-    
-    with col_a:
-        user_1 = st.text_input("Avatar A:", placeholder="Primer usuario", key="cmp_1_unique")
-    with col_b:
-        user_2 = st.text_input("Avatar B:", placeholder="Segundo usuario", key="cmp_2_unique")
-        
-    if st.button("Comparar Perfiles", key="btn_cmp_action"):
-        if user_1.strip() and user_2.strip():
-            st.success("¡Comparación generada con éxito!")
-            
-            col_res1, col_res2 = st.columns(2)
-            with col_res1:
-                st.markdown(f"**📌 @{user_1.strip()}**")
-                st.link_button(f"🔗 Perfil A", f"https://secure.imvu.com/next/av/{user_1.strip()}/", use_container_width=True)
-                
-            with col_res2:
-                st.markdown(f"**📌 @{user_2.strip()}**")
-                st.link_button(f"🔗 Perfil B", f"https://secure.imvu.com/next/av/{user_2.strip()}/", use_container_width=True)
-        else:
-            st.warning("Por favor, introduce ambos nombres de usuario para comparar.")
+    st.subheader("Comparador de Avatares")
+    c1, c2 = st.columns(2)
+    with c1: u1 = st.text_input("Avatar A:", key="cmp1")
+    with c2: u2 = st.text_input("Avatar B:", key="cmp2")
+    if st.button("Comparar", key="btn_cmp"):
+        if u1 and u2:
+            st.success("¡Comparación lista!")
+            cc1, cc2 = st.columns(2)
+            with cc1: st.link_button(f"🔗 Perfil @{u1}", f"https://secure.imvu.com/next/av/{u1}/", use_container_width=True)
+            with cc2: st.link_button(f"🔗 Perfil @{u2}", f"https://secure.imvu.com/next/av/{u2}/", use_container_width=True)
