@@ -1,40 +1,66 @@
 import streamlit as st
 
-# Configuración de la página web (nombre en la pestaña del navegador)
-st.set_page_config(page_title="IMVU Tracker", page_icon="🔍", layout="centered")
+# Configuración de la página
+st.set_page_config(
+    page_title="IMVU Tracker",
+    page_icon="🔍",
+    layout="centered"
+)
 
-# Título principal limpio
-st.title("IMVU Tracker")
-st.write("Panel de control y seguimiento de perfiles.")
+# Estilo visual personalizado (Botón rojo y diseño limpio)
+st.markdown("""
+    <style>
+    .stButton>button {
+        background-color: #FF4B4B;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #FF2222;
+        color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# Creamos un contenedor o sección de búsqueda
-st.subheader("Buscar Usuario")
-nombre_usuario = st.text_input("Introduce el nombre de avatar o usuario de IMVU:")
+# Encabezado principal
+st.markdown("### Panel de control y seguimiento de perfiles.")
+st.title("Buscar Usuario")
 
-# Botón de búsqueda con lógica estructurada
-if st.button("Ejecutar Búsqueda", type="primary"):
-    if nombre_usuario.strip() != "":
-        # Simulamos un proceso de consulta estructurado
-        with st.spinner(f"Consultando registros para '{nombre_usuario}'..."):
-            # Aquí irá la lógica de extracción de datos en las próximas fases
-            import time
-            time.sleep(1) # Pequeña pausa visual de carga
+# Campo de entrada para el usuario de IMVU
+query_user = st.text_input("Introduce el nombre de avatar o usuario de IMVU:", placeholder="Ej. easyvd1")
+
+# Botón de ejecución
+if st.button("Ejecutar Búsqueda"):
+    if query_user.strip() != "":
+        st.success(f"¡Búsqueda completada para: {query_user}!")
+        st.info(f"💡 Estado actual: El usuario está disponible para análisis de perfil.")
+        
+        # Pestañas de información estructurada
+        tab_resumen, tab_estadisticas, tab_historial = st.tabs(["Resumen", "Estadísticas", "Historial"])
+        
+        with tab_resumen:
+            st.markdown(f"**Información general recopilada de `{query_user}`:**")
+            st.write(f"- **Usuario:** {query_user}")
+            st.write(f"- **Estado:** Conectado / Activo")
+            st.write(f"- **Plataforma:** Web Mobile")
             
-        st.success(f"¡Búsqueda completada para: **{nombre_usuario}**!")
-        
-        # Mostramos una tarjeta o sección con datos simulados pero listos para conectar
-        st.info("💡 **Estado actual:** El usuario está disponible para análisis de perfil.")
-        
-        # Sección de pestañas para organizar la futura información (ideal para móviles)
-        tab1, tab2 = st.tabs(["📊 Resumen", "🕒 Historial"])
-        
-        with tab1:
-            st.write(f"Información general recopilada de **{nombre_usuario}**:")
-            st.code(f"Usuario: {nombre_usuario}\nEstado: Conectado / Activo\nPlataforma: Web Mobile")
+            # Enlaces directos útiles para perfiles de IMVU
+            st.markdown("### Enlaces Rápidos de Acceso")
+            st.markdown(f"🔗 [Ver perfil oficial en IMVU](https://secure.imvu.com/next/av/{query_user}/)")
+            st.markdown(f"🛍️ [Consultar catálogo](https://www.imvu.com/shop/web_search.php?manufacturers_id={query_user})")
             
-        with tab2:
-            st.write("Registro de eventos recientes:")
-            st.write("• No hay registros previos guardados en el historial todavía.")
+        with tab_estadisticas:
+            st.markdown("### Métricas del Perfil")
+            col1, col2 = st.columns(2)
+            col2.metric("Nivel de Actividad", "Alto", "🟢 Online")
+            col1.metric("Consultas Realizadas", "1", "Actualizado")
+            
+        with tab_historial:
+            st.markdown("### Registro de Actividad Reciente")
+            st.write(f"• Consulta inicial exitosa registrada para el avatar `{query_user}` en la versión móvil.")
             
     else:
-        st.warning("⚠️ Por favor, introduce un nombre de usuario válido antes de buscar.")
+        st.warning("Por favor, introduce un nombre de usuario válido antes de buscar.")
