@@ -46,7 +46,7 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 ])
 
 # -------------------------------------------------------------
-# PESTAÑA 1: PERFIL & OUTFITS (Con Foto de Avatar e Historial)
+# PESTAÑA 1: PERFIL & OUTFITS
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
@@ -65,17 +65,10 @@ with tab_perfil:
                     
             st.success(f"¡Datos cargados para: {avatar_limpio}!")
             
-            # Mostrar la tarjeta de perfil con imagen simulada/renderizada del avatar
-            col_img, col_info = st.columns([1, 2])
-            
-            with col_img:
-                # Imagen representativa del avatar basada en su nombre de usuario
-                st.image(f"https://images.imvu.com/profile/pp_av_#{avatar_limpio}.jpg", width=120, caption=f"@{avatar_limpio}")
-                
-            with col_info:
-                st.markdown(f"**Avatar:** `{avatar_limpio}`")
-                st.markdown(f"**Estado:** Monitoreo Activo 🟢")
-                st.markdown(f"**Plataforma:** Web Mobile App")
+            # Tarjeta de información limpia y profesional
+            st.markdown(f"### 👤 @{avatar_limpio}")
+            st.markdown(f"**Estado:** Monitoreo Activo 🟢")
+            st.markdown(f"**Plataforma:** Web Mobile App")
             
             st.markdown("---")
             
@@ -99,7 +92,7 @@ with tab_perfil:
             st.markdown(f"• `{av}` ➔ [Ver Perfil](https://secure.imvu.com/next/av/{av}/)")
 
 # -------------------------------------------------------------
-# PESTAÑA 2: SALAS (Con Teleport e Historial de Salas)
+# PESTAÑA 2: SALAS
 # -------------------------------------------------------------
 with tab_salas:
     st.subheader("🏠 Teleport y Historial de Salas")
