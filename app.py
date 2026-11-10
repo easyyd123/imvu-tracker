@@ -26,9 +26,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar el historial en la sesión si no existe
+# Inicializar estados en la sesión si no existen
 if 'historial_busquedas' not in st.session_state:
     st.session_state.historial_busquedas = []
+
+if 'historial_salas' not in st.session_state:
+    st.session_state.historial_salas = []
 
 # Encabezado principal
 st.markdown("### ⚡ IMVU Tracker & Toolkit")
@@ -43,7 +46,7 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 ])
 
 # -------------------------------------------------------------
-# PESTAÑA 1: PERFIL & OUTFITS
+# PESTAÑA 1: PERFIL & OUTFITS (Con Foto de Avatar e Historial)
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
@@ -53,6 +56,8 @@ with tab_perfil:
     if st.button("Buscar Perfil", key="btn_perfil"):
         if query_user.strip() != "":
             avatar_limpio = query_user.strip()
+            
+            # Guardar en historial
             if avatar_limpio not in st.session_state.historial_busquedas:
                 st.session_state.historial_busquedas.insert(0, avatar_limpio)
                 if len(st.session_state.historial_busquedas) > 5:
@@ -60,12 +65,26 @@ with tab_perfil:
                     
             st.success(f"¡Datos cargados para: {avatar_limpio}!")
             
+            # Mostrar la tarjeta de perfil con imagen simulada/renderizada del avatar
+            col_img, col_info = st.columns([1, 2])
+            
+            with col_img:
+                # Imagen representativa del avatar basada en su nombre de usuario
+                st.image(f"https://images.imvu.com/profile/pp_av_#{avatar_limpio}.jpg", width=120, caption=f"@{avatar_limpio}")
+                
+            with col_info:
+                st.markdown(f"**Avatar:** `{avatar_limpio}`")
+                st.markdown(f"**Estado:** Monitoreo Activo 🟢")
+                st.markdown(f"**Plataforma:** Web Mobile App")
+            
+            st.markdown("---")
+            
             sub_tab1, sub_tab2 = st.tabs(["Información General", "Enlaces Directos"])
             
             with sub_tab1:
-                st.write(f"- **Avatar:** {avatar_limpio}")
-                st.write(f"- **Estado de Conexión:** Monitoreo Activo 🟢")
-                st.write(f"- **Plataforma:** Web Mobile App")
+                st.write(f"- **Nombre de usuario:** {avatar_limpio}")
+                st.write(f"- **Tipo de cuenta:** Estándar / Verificada")
+                st.write(f"- **Acceso rápido a tienda:** Habilitado")
                 
             with sub_tab2:
                 st.link_button(f"🔗 Ver perfil oficial de {avatar_limpio}", f"https://secure.imvu.com/next/av/{avatar_limpio}/")
@@ -80,23 +99,34 @@ with tab_perfil:
             st.markdown(f"• `{av}` ➔ [Ver Perfil](https://secure.imvu.com/next/av/{av}/)")
 
 # -------------------------------------------------------------
-# PESTAÑA 2: SALAS (Con Teleport de Salas)
+# PESTAÑA 2: SALAS (Con Teleport e Historial de Salas)
 # -------------------------------------------------------------
 with tab_salas:
-    st.subheader("🏠 Teleport y Buscador de Salas")
+    st.subheader("🏠 Teleport y Historial de Salas")
     
     room_id = st.text_input("Introduce el ID o nombre de la sala:", placeholder="Ej. 12345678 o nombre de sala", key="input_sala_id")
     
     if st.button("Generar Enlace de Sala", key="btn_sala"):
         if room_id.strip() != "":
             sala_limpia = room_id.strip()
+            
+            if sala_limpia not in st.session_state.historial_salas:
+                st.session_state.historial_salas.insert(0, sala_limpia)
+                if len(st.session_state.historial_salas) > 5:
+                    st.session_state.historial_salas.pop()
+                    
             st.success(f"¡Acceso directo generado para la sala: {sala_limpia}!")
             
-            # Enlaces útiles para salas de IMVU
             st.link_button(f"🌐 Entrar a la sala ({sala_limpia})", f"https://www.imvu.com/rooms/{sala_limpia}")
             st.link_button("📂 Explorar directorio general de salas", "https://www.imvu.com/rooms/")
         else:
             st.warning("Por favor, introduce un ID o término de sala válido.")
+            
+    if st.session_state.historial_salas:
+        st.markdown("---")
+        st.markdown("🕒 **Salas recientes en esta sesión:**")
+        for sal in st.session_state.historial_salas:
+            st.markdown(f"• Sala ID: `{sal}` ➔ [Entrar Directo](https://www.imvu.com/rooms/{sal})")
 
 # -------------------------------------------------------------
 # PESTAÑA 3: CATÁLOGO
