@@ -33,12 +33,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar estados de sesión
+# Inicializar estados de sesión de forma segura
 if 'historial_busquedas' not in st.session_state:
     st.session_state.historial_busquedas = []
 
 if 'rooms_searched' not in st.session_state:
-    st.session_state.rooms_searched = None
+    st.session_state.rooms_searched = ""
 
 # Encabezado principal
 st.markdown("### ⚡ IMVU Tracker & Toolkit")
@@ -56,9 +56,9 @@ tab_perfil, tab_salas, tab_catalogo, tab_comparar = st.tabs([
 # -------------------------------------------------------------
 with tab_perfil:
     st.subheader("Buscador de Avatares")
-    query_user = st.text_input("Introduce el nombre de usuario:", placeholder="Ej. Easyd1", key="input_perf")
+    query_user = st.text_input("Introduce el nombre de usuario:", placeholder="Ej. Easyd1", key="input_perf_tab1")
     
-    if st.button("Buscar Perfil", key="btn_perf"):
+    if st.button("Buscar Perfil", key="btn_perf_tab1"):
         if query_user.strip() != "":
             u = query_user.strip()
             st.success(f"¡Datos cargados para: {u}!")
@@ -81,14 +81,16 @@ with tab_salas:
     
     with st.container():
         st.markdown('<div class="room-card">', unsafe_allow_html=True)
-        room_username = st.text_input("Username", placeholder="Easyd1", key="room_u")
-        room_with_user = st.text_input("With user (optional)", placeholder="Filtro secundario", key="room_with")
-        search_btn = st.button("SEARCH", key="btn_search_rooms")
+        room_username = st.text_input("Username", placeholder="Easyd1", key="room_u_tab2")
+        room_with_user = st.text_input("With user (optional)", placeholder="Filtro secundario", key="room_with_tab2")
+        search_btn = st.button("SEARCH", key="btn_search_rooms_tab2")
         st.markdown('</div>', unsafe_allow_html=True)
         
     if search_btn:
         if room_username.strip() != "":
             st.session_state.rooms_searched = room_username.strip()
+        else:
+            st.warning("Por favor, introduce un nombre de usuario.")
             
     if st.session_state.rooms_searched:
         u_clean = st.session_state.rooms_searched
@@ -96,7 +98,6 @@ with tab_salas:
         
         st.success(f"Historial completo de salas para @{u_clean}")
         
-        # Tarjeta de estadísticas de usuario estilo BotPower
         st.markdown(f"""
             <div class="room-card" style="text-align: center;">
                 <h4 style="color: #FF4B4B; margin-bottom: 10px;">👤 @{u_clean}</h4>
@@ -110,21 +111,18 @@ with tab_salas:
         
         st.markdown("### 🕒 Complete Rooms History & Snapshots")
         
-        # Lista simulada de historial completo de salas (puedes expandir esta lista con más registros)
         historial_salas = [
-            {"nombre": "Santorini Pool & Chill", "personas": 2, "tiempo": "10h ago", "id": "101"},
-            {"nombre": "18+ Chill Zone & Music", "personas": 4, "tiempo": "11h ago", "id": "102"},
-            {"nombre": "VIP Luxury Penthouse", "personas": 6, "tiempo": "14h ago", "id": "103"},
-            {"nombre": "Underground Cyber Club", "personas": 12, "tiempo": "1 día ago", "id": "104"},
-            {"nombre": "Aesthetic Sunset Lounge", "personas": 3, "tiempo": "1 día ago", "id": "105"},
-            {"nombre": "Private Coffee & Chat", "personas": 2, "tiempo": "2 días ago", "id": "106"}
+            {"nombre": "Santorini Pool & Chill", "personas": 2, "tiempo": "10h ago"},
+            {"nombre": "18+ Chill Zone & Music", "personas": 4, "tiempo": "11h ago"},
+            {"nombre": "VIP Luxury Penthouse", "personas": 6, "tiempo": "14h ago"},
+            {"nombre": "Underground Cyber Club", "personas": 12, "tiempo": "1 día ago"},
+            {"nombre": "Aesthetic Sunset Lounge", "personas": 3, "tiempo": "1 día ago"},
+            {"nombre": "Private Coffee & Chat", "personas": 2, "tiempo": "2 días ago"}
         ]
         
-        # Mostrar el historial completo organizado en una cuadrícula de 2 columnas
         for i in range(0, len(historial_salas), 2):
             col1, col2 = st.columns(2)
             
-            # Sala izquierda
             with col1:
                 sala = historial_salas[i]
                 st.markdown(f"""
@@ -134,12 +132,11 @@ with tab_salas:
                         <span style="color: #00FF7F; font-size: 10px;">🟢 Registro verificado</span>
                     </div>
                 """, unsafe_allow_html=True)
-                st.link_button(f"🌐 Entrar ({sala['nombre'][:10]}...)", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", key=f"room_left_{i}", use_container_width=True)
+                st.link_button(f"🌐 Entrar ({sala['nombre'][:10]}...)", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", key=f"room_l_{i}", use_container_width=True)
                 
-            # Sala derecha (si existe)
             if i + 1 < len(historial_salas):
                 with col2:
-                    sala_ der = historial_salas[i+1]
+                    sala_der = historial_salas[i+1]
                     st.markdown(f"""
                         <div class="room-card">
                             <b style="color: white; font-size: 13px;">{sala_der['nombre']}</b><br>
@@ -147,15 +144,15 @@ with tab_salas:
                             <span style="color: #00FF7F; font-size: 10px;">🟢 Registro verificado</span>
                         </div>
                     """, unsafe_allow_html=True)
-                    st.link_button(f"🌐 Entrar ({sala_der['nombre'][:10]}...)", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", key=f"room_right_{i+1}", use_container_width=True)
+                    st.link_button(f"🌐 Entrar ({sala_der['nombre'][:10]}...)", f"https://www.imvu.com/rooms/rooms.php?owner={u_clean}", key=f"room_r_{i+1}", use_container_width=True)
 
 # -------------------------------------------------------------
 # PESTAÑA 3: CATÁLOGO
 # -------------------------------------------------------------
 with tab_catalogo:
     st.subheader("Explorador de Productos y Creadores")
-    prod_query = st.text_input("Buscar producto o creador:", placeholder="Ej. Hair", key="cat_q")
-    if st.button("Buscar en Tienda", key="btn_cat"):
+    prod_query = st.text_input("Buscar producto o creador:", placeholder="Ej. Hair", key="cat_q_tab3")
+    if st.button("Buscar en Tienda", key="btn_cat_tab3"):
         if prod_query.strip():
             st.link_button("🛍️ Ver en la tienda IMVU", f"https://www.imvu.com/shop/web_search.php?q={prod_query}", use_container_width=True)
 
@@ -165,9 +162,9 @@ with tab_catalogo:
 with tab_comparar:
     st.subheader("Comparador de Avatares")
     c1, c2 = st.columns(2)
-    with c1: u1 = st.text_input("Avatar A:", key="cmp1")
-    with c2: u2 = st.text_input("Avatar B:", key="cmp2")
-    if st.button("Comparar", key="btn_cmp"):
+    with c1: u1 = st.text_input("Avatar A:", key="cmp1_tab4")
+    with c2: u2 = st.text_input("Avatar B:", key="cmp2_tab4")
+    if st.button("Comparar", key="btn_cmp_tab4"):
         if u1 and u2:
             st.success("¡Comparación lista!")
             cc1, cc2 = st.columns(2)
